@@ -1,4 +1,5 @@
-﻿using ArenaHub.API.Entities;
+﻿using ArenaHub.API.Constants;
+using ArenaHub.API.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
