@@ -44,10 +44,20 @@ namespace ArenaHub.API.Data
                     var error = string.Join(", ", result.Errors.Select(r => r.Description));
 
                     throw new Exception($"Admin seeding failed: {error}");
-
                 }
 
                 await userManager.AddToRoleAsync(admin, AppRoles.Admin);
+            }
+            else if (!(await userManager.IsInRoleAsync(existingAdmin, AppRoles.Admin)))
+            {
+                var roleResult = await userManager.AddToRoleAsync(existingAdmin, AppRoles.Admin);
+
+                if (!roleResult.Succeeded)
+                {
+                    var error = string.Join(", ", roleResult.Errors.Select(r => r.Description));
+
+                    throw new Exception($"Admin role assignment failed: {error}");
+                }
             }
         }
     }

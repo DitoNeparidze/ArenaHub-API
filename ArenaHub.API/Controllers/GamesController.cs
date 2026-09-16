@@ -1,7 +1,9 @@
-﻿using ArenaHub.API.Dtos.Games;
+﻿using ArenaHub.API.Constants;
+using ArenaHub.API.Dtos.Games;
 using ArenaHub.API.Entities;
 using ArenaHub.API.Repositories;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,6 +36,7 @@ namespace ArenaHub.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = AppRoles.Admin)]
         public async Task<IActionResult> Create([FromBody] CreateGameRequestDto request)
         {
             if (request.MinPlayers > request.MaxPlayers)
@@ -45,6 +48,7 @@ namespace ArenaHub.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize(Roles = AppRoles.Admin)]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateGameRequestDto request)
         {
             if (request.MinPlayers > request.MaxPlayers)
@@ -58,6 +62,7 @@ namespace ArenaHub.API.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = AppRoles.Admin)]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             var game = await _gameRepository.DeleteAsync(id);

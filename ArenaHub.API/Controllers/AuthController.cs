@@ -25,7 +25,7 @@ namespace ArenaHub.API.Controllers
             var user = new ApplicationUser
             {
                 UserName = request.UserName,
-                Email = request.Email,
+                Email = request.Email
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
@@ -38,7 +38,7 @@ namespace ArenaHub.API.Controllers
             if (!roleResult.Succeeded)
                 return BadRequest(roleResult.Errors);
 
-            return Ok("User created successfully");
+            return Ok("User registered successfully");
         }
 
 
@@ -46,19 +46,20 @@ namespace ArenaHub.API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
-            
+
             if (existingUser == null)
-                return BadRequest("Invalid Credentials");
+                return Unauthorized("Invalid email or password");
 
             var isPasswordValid = await _userManager.CheckPasswordAsync(existingUser, request.Password);
+
             if (!isPasswordValid)
-                return BadRequest("Invalid Credentials");
+                return Unauthorized("Invalid email or password");
 
             var roles = await _userManager.GetRolesAsync(existingUser);
 
             var token = _tokenService.CreateToken(existingUser, roles);
 
-            return Ok(new AuthResponseDto { Token = token});
+            return Ok(new AuthResponseDto { Token = token });
         }
     }
 }

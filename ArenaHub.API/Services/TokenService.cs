@@ -9,7 +9,6 @@ namespace ArenaHub.API.Services
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;
-
         public TokenService(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -19,8 +18,8 @@ namespace ArenaHub.API.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email!),
-                new Claim(ClaimTypes.Name, user.UserName!)
+                new Claim(ClaimTypes.Name, user.UserName!),
+                new Claim(ClaimTypes.Email, user.Email!)
             };
 
             foreach (var role in roles)
@@ -29,14 +28,15 @@ namespace ArenaHub.API.Services
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
 
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var durationMinutes = _configuration.GetValue<double>("Jwt:DurationInMinutes");
+
+            var durationInMinutes = _configuration.GetValue<double>("Jwt:DurationInMinutes");
+
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(durationMinutes),
+                expires: DateTime.UtcNow.AddMinutes(durationInMinutes),
                 signingCredentials: credentials);
-            
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
