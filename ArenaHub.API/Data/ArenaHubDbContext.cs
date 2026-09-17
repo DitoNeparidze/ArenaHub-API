@@ -9,5 +9,6 @@ namespace ArenaHub.API.Data
         : IdentityDbContext<ApplicationUser>(options)
     {
         public DbSet<Game> Games { get; set; }
+        public DbSet<Tournament> Tournaments { get; set; }
     }
 }

@@ -54,5 +54,11 @@ namespace ArenaHub.API.Repositories
 
             return game;
         }
+
+        public async Task<bool> ExistsByNameAsync(string name)
+        {
+            return await _dbContext.Games
+                .AnyAsync(g => g.Name.ToLower() == name.ToLower());
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace ArenaHub.API.Repositories
         Task<Game> CreateAsync(Game game);
         Task<Game?> UpdateAsync(Guid id, Game game);
         Task<Game?> DeleteAsync(Guid id);
+        Task<bool> ExistsByNameAsync(string name);
     }
 }

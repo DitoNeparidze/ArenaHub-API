@@ -41,6 +41,8 @@ namespace ArenaHub.API.Controllers
         {
             if (request.MinPlayers > request.MaxPlayers)
                 return BadRequest("MinPlayers cannot be greater than MaxPlayers.");
+            if (await _gameRepository.ExistsByNameAsync(request.Name))
+                return Conflict("Game with this name already exists");
 
             var game = _mapper.Map<Game>(request);
             game = await _gameRepository.CreateAsync(game);
