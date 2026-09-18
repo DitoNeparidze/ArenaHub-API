@@ -9,8 +9,8 @@ namespace ArenaHub.API.Repositories
         Task<List<Tournament>> GetAllAsync();
         Task<Tournament?> GetByIdAsync(Guid id);
         Task<Tournament> CreateAsync(Tournament tournament);
-        Task<Tournament?> UpdateAsync(Guid id,Tournament tournament);
-        Task<Tournament?> DeleteAsync(Guid id);
-        Task<bool> ExistsByNameAsync(string name);
+        Task<Tournament> UpdateAsync(Tournament tournament);
+        Task<Tournament> DeleteAsync(Tournament tournament);
+        Task<bool> ExistsByNameAsync(string name, Guid excludedId);
     }
 }

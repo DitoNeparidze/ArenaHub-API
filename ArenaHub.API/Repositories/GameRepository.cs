@@ -55,10 +55,10 @@ namespace ArenaHub.API.Repositories
             return game;
         }
 
-        public async Task<bool> ExistsByNameAsync(string name)
+        public async Task<bool> ExistsByNameAsync(string name, Guid excludedId)
         {
             return await _dbContext.Games
-                .AnyAsync(g => g.Name.ToLower() == name.ToLower());
+                .AnyAsync(g => g.Id != excludedId && g.Name.ToLower() == name.ToLower());
         }
     }
 }

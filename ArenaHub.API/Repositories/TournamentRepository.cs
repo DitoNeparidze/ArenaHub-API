@@ -14,12 +14,18 @@ namespace ArenaHub.API.Repositories
         }
         public async Task<List<Tournament>> GetAllAsync()
         {
-            return await _dbContext.Tournaments.ToListAsync();
+            return await _dbContext.Tournaments
+                .Include(t=> t.Game)
+                .Include(t=> t.Organizer)
+                .ToListAsync();
         }
 
         public async Task<Tournament?> GetByIdAsync(Guid id)
         {
-            return await _dbContext.Tournaments.FindAsync(id);
+            return await _dbContext.Tournaments
+                .Include(t => t.Game)
+                .Include(t => t.Organizer)
+                .FirstOrDefaultAsync(t=> t.Id == id);
         }
         public async Task<Tournament> CreateAsync(Tournament tournament)
         {
@@ -29,32 +35,23 @@ namespace ArenaHub.API.Repositories
             return tournament;
         }
 
-        public async Task<Tournament?> UpdateAsync(Guid id, Tournament tournament)
+        public async Task<Tournament> UpdateAsync(Tournament tournament)
         {
-            var existingTournament = await _dbContext.Tournaments.FindAsync(id);
-            if (existingTournament == null)
-                return null;
-
-            existingTournament.Name = tournament.Name;
-            existingTournament.MaxParticipants = tournament.MaxParticipants;
-
             await _dbContext.SaveChangesAsync();
 
-            return existingTournament;
+            return tournament;
         }
-        public async Task<Tournament?> DeleteAsync(Guid id)
+        public async Task<Tournament> DeleteAsync(Tournament tournament)
         {
-            var tournament = await _dbContext.Tournaments.FindAsync(id);
-            if (tournament == null)
-                return null;
             _dbContext.Tournaments.Remove(tournament);
             await _dbContext.SaveChangesAsync();
 
             return tournament;
         }
-        public async Task<bool> ExistsByNameAsync(string name)
+        public async Task<bool> ExistsByNameAsync(string name, Guid excludeId)
         {
-            return await _dbContext.Tournaments.AnyAsync(t => t.Name.ToLower() == name.ToLower());
+            return await _dbContext.Tournaments
+                .AnyAsync(t => t.Id != excludeId && t.Name.ToLower() == name.ToLower());
         }
     }
 }

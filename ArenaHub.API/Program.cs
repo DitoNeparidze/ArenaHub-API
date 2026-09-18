@@ -1,6 +1,7 @@
 using ArenaHub.API.Data;
 using ArenaHub.API.Entities;
 using ArenaHub.API.Mappings;
+using ArenaHub.API.Middlewares;
 using ArenaHub.API.Repositories;
 using ArenaHub.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -49,6 +50,8 @@ builder.Services.AddDbContext<ArenaHubDbContext>(options =>
 
 builder.Services.AddScoped<IGameRepository, GameRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
+builder.Services.AddScoped<ITournamentService, TournamentService>();
 builder.Services.AddAutoMapper(options => options.AddProfile<AutoMapperProfiles>());
 
 
@@ -75,6 +78,8 @@ builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 using (var scope = app.Services.CreateScope())
 {

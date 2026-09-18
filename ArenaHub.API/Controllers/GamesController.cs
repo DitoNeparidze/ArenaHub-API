@@ -4,7 +4,6 @@ using ArenaHub.API.Entities;
 using ArenaHub.API.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArenaHub.API.Controllers
@@ -41,7 +40,7 @@ namespace ArenaHub.API.Controllers
         {
             if (request.MinPlayers > request.MaxPlayers)
                 return BadRequest("MinPlayers cannot be greater than MaxPlayers.");
-            if (await _gameRepository.ExistsByNameAsync(request.Name))
+            if (await _gameRepository.ExistsByNameAsync(request.Name,Guid.Empty))
                 return Conflict("Game with this name already exists");
 
             var game = _mapper.Map<Game>(request);
@@ -55,6 +54,8 @@ namespace ArenaHub.API.Controllers
         {
             if (request.MinPlayers > request.MaxPlayers)
                 return BadRequest("MinPlayers cannot be greater than MaxPlayers.");
+            if (await _gameRepository.ExistsByNameAsync(request.Name,id))
+                return Conflict("Game with this name already exists");
 
             var game = await _gameRepository.UpdateAsync(id,_mapper.Map<Game>(request));
             if (game is null)
