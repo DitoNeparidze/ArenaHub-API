@@ -50,13 +50,13 @@ namespace ArenaHub.API.Services
             return (await GetByIdAsync(created.Id))!;
         }
 
-        public async Task<TournamentDto?> UpdateAsync(Guid id, UpdateTournamentRequestDto request, string currentUserId)
+        public async Task<TournamentDto?> UpdateAsync(Guid id, UpdateTournamentRequestDto request, string currentUserId, bool isAdmin)
         {
             var existingTournament = await _tournamentRepository.GetByIdAsync(id);
             if (existingTournament == null)
-                throw new InvalidOperationException("Tournament with this ID does not exist");
+                return null;
 
-            if (existingTournament.OrganizerId != currentUserId)
+            if (existingTournament.OrganizerId != currentUserId && !isAdmin)
                 throw new UnauthorizedAccessException("This user does not have permission to change tournament details");
             
             var existingName = await _tournamentRepository.ExistsByNameAsync(request.Name,id);
@@ -71,13 +71,13 @@ namespace ArenaHub.API.Services
 
             return _mapper.Map<TournamentDto>(updatedTournament);
         }
-        public async Task<TournamentDto?> DeleteAsync(Guid id, string currentUserId)
+        public async Task<TournamentDto?> DeleteAsync(Guid id, string currentUserId, bool isAdmin)
         {
             var existingTournament = await _tournamentRepository.GetByIdAsync(id);
             if (existingTournament == null)
                 return null;
 
-            if (existingTournament.OrganizerId != currentUserId)
+            if (existingTournament.OrganizerId != currentUserId && !isAdmin)
                 throw new UnauthorizedAccessException("This user does not have permission to delete tournament");
 
             var tournament = await _tournamentRepository.DeleteAsync(existingTournament);
