@@ -49,6 +49,20 @@ namespace ArenaHub.API.Services
             var created = await _tournamentRepository.CreateAsync(tournament);
             return (await GetByIdAsync(created.Id))!;
         }
+        public async Task<TournamentDto> OpenAsync(Guid id, string currentUserId)
+        {
+            var tournament = await _tournamentRepository.GetByIdAsync(id);
+            if (tournament == null)
+                throw new InvalidOperationException("Tournament with this ID does not exist");
+            if(tournament.OrganizerId != currentUserId)
+                throw new UnauthorizedAccessException("This user does not have permission to change tournament details");
+            if (tournament.Status != TournamentStatus.Draft)
+                throw new InvalidOperationException("Tournament has already been opened");
+            tournament.Status = TournamentStatus.Open;
+            await _tournamentRepository.UpdateAsync(tournament);
+            
+            return _mapper.Map<TournamentDto>(tournament);
+        }
 
         public async Task<TournamentDto?> UpdateAsync(Guid id, UpdateTournamentRequestDto request, string currentUserId, bool isAdmin)
         {
@@ -84,5 +98,6 @@ namespace ArenaHub.API.Services
 
             return _mapper.Map<TournamentDto>(tournament);
         }
+
     }
 }

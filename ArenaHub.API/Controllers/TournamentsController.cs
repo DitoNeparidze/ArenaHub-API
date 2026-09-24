@@ -43,6 +43,15 @@ namespace ArenaHub.API.Controllers
 
             return CreatedAtAction(nameof(GetById), new { id = tournament.Id }, tournament);
         }
+        [HttpPost("{id:guid}/open")]
+        [Authorize(Roles = AppRoles.User)]
+        public async Task<IActionResult> Open(Guid id)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var tournament = await _tournamentService.OpenAsync(id, currentUserId);
+
+            return Ok("tournament");
+        }
 
         [HttpPut("{id:guid}")]
         [Authorize(Roles = $"{AppRoles.User},{AppRoles.Admin}")]
