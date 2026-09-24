@@ -13,5 +13,9 @@
         // Navigation properties
         public Game Game { get; set; } = null!;
         public ApplicationUser Organizer { get; set; } = null!;
+
+        // Collection
+        public ICollection<TournamentParticipant> Participants { get; set; } = 
+            new List<TournamentParticipant>();
     }
 }
