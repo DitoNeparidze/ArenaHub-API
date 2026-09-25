@@ -2,6 +2,7 @@
 using ArenaHub.API.Entities;
 using ArenaHub.API.Repositories;
 using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace ArenaHub.API.Services
 {
@@ -31,6 +32,7 @@ namespace ArenaHub.API.Services
 
             return _mapper.Map<TournamentDto>(tournament);
         }
+
         public async Task<TournamentDto> CreateAsync(CreateTournamentRequestDto request, string organizerId)
         {
             var existingTournament = await _tournamentRepository.ExistsByNameAsync(request.Name,Guid.Empty);
@@ -49,6 +51,7 @@ namespace ArenaHub.API.Services
             var created = await _tournamentRepository.CreateAsync(tournament);
             return (await GetByIdAsync(created.Id))!;
         }
+
         public async Task<TournamentDto> OpenAsync(Guid id, string currentUserId)
         {
             var tournament = await _tournamentRepository.GetByIdAsync(id);
@@ -62,6 +65,29 @@ namespace ArenaHub.API.Services
             await _tournamentRepository.UpdateAsync(tournament);
             
             return _mapper.Map<TournamentDto>(tournament);
+        }
+        public async Task<TournamentParticipantDto> JoinAsync(Guid id, string currentUserId)
+        {
+            var tournament = await _tournamentRepository.GetByIdAsync(id);
+            if (tournament == null)
+                throw new InvalidOperationException("Tournament not found");
+            if (tournament.Status != TournamentStatus.Open)
+                throw new InvalidOperationException("Tournament is not open for registration");
+            if (tournament.Participants.Count >= tournament.MaxParticipants)
+                throw new InvalidOperationException("Tournament is full");
+            if (tournament.Participants.Any(t => t.UserId == currentUserId))
+                throw new InvalidOperationException("User already joined");
+
+            var tournamentParticipant = new TournamentParticipant
+            {
+                TournamentId = tournament.Id,
+                UserId = currentUserId,
+                JoinedAt = DateTime.UtcNow
+            };
+            tournament.Participants.Add(tournamentParticipant);
+            await _tournamentRepository.UpdateAsync(tournament);
+
+            return _mapper.Map<TournamentParticipantDto>(tournamentParticipant);
         }
 
         public async Task<TournamentDto?> UpdateAsync(Guid id, UpdateTournamentRequestDto request, string currentUserId, bool isAdmin)

@@ -50,7 +50,17 @@ namespace ArenaHub.API.Controllers
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var tournament = await _tournamentService.OpenAsync(id, currentUserId);
 
-            return Ok("tournament");
+            return Ok(tournament);
+        }
+
+        [HttpPost("{id:guid}/join")]
+        [Authorize]
+        public async Task<IActionResult> Join(Guid id)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var tournament = await _tournamentService.JoinAsync(id, currentUserId);
+
+            return Ok(tournament);
         }
 
         [HttpPut("{id:guid}")]

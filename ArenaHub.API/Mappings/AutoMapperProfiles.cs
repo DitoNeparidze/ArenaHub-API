@@ -19,7 +19,7 @@ namespace ArenaHub.API.Mappings
                 .ForMember(dest => dest.OrganizerName,
                     opt => opt.MapFrom(src => src.Organizer.UserName));
             CreateMap<CreateTournamentRequestDto, Tournament>();
-
+            CreateMap<TournamentParticipant, TournamentParticipantDto>();
 
         }
     }

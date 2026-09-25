@@ -17,6 +17,7 @@ namespace ArenaHub.API.Repositories
             return await _dbContext.Tournaments
                 .Include(t=> t.Game)
                 .Include(t=> t.Organizer)
+                .Include(t => t.Participants)
                 .ToListAsync();
         }
 
@@ -25,6 +26,7 @@ namespace ArenaHub.API.Repositories
             return await _dbContext.Tournaments
                 .Include(t => t.Game)
                 .Include(t => t.Organizer)
+                .Include(t => t.Participants)
                 .FirstOrDefaultAsync(t=> t.Id == id);
         }
         public async Task<Tournament> CreateAsync(Tournament tournament)
