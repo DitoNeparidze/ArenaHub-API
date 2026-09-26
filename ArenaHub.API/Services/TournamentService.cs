@@ -2,7 +2,6 @@
 using ArenaHub.API.Entities;
 using ArenaHub.API.Repositories;
 using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace ArenaHub.API.Services
 {
@@ -88,6 +87,51 @@ namespace ArenaHub.API.Services
             await _tournamentRepository.UpdateAsync(tournament);
 
             return _mapper.Map<TournamentParticipantDto>(tournamentParticipant);
+        }
+        public async Task<TournamentDto> CancelAsync(Guid id, string currentUserId)
+        {
+            var tournament = await _tournamentRepository.GetByIdAsync(id);
+            if(tournament == null)
+                throw new InvalidOperationException("Tournament not found");
+            if(currentUserId != tournament.OrganizerId)
+                throw new UnauthorizedAccessException("This user does not have permission to change tournament details");
+            if (tournament.Status != TournamentStatus.Draft && tournament.Status != TournamentStatus.Open)
+                throw new InvalidOperationException("Tournament cannot be cancelled");
+
+            tournament.Status = TournamentStatus.Cancelled;
+            await _tournamentRepository.UpdateAsync(tournament);
+
+            return _mapper.Map<TournamentDto>(tournament);
+        }
+        public async Task<TournamentDto> StartAsync(Guid id, string currentUserId)
+        {
+            var tournament = await _tournamentRepository.GetByIdAsync(id);
+            if (tournament == null)
+                throw new InvalidOperationException("Tournament not found");
+            if (currentUserId != tournament.OrganizerId)
+                throw new UnauthorizedAccessException("This user does not have permission to change tournament details");
+            if (tournament.Status != TournamentStatus.Open)
+                throw new InvalidOperationException("Tournament can only be started when its status is Open");
+
+            tournament.Status = TournamentStatus.InProgress;
+            await _tournamentRepository.UpdateAsync(tournament);
+
+            return _mapper.Map<TournamentDto>(tournament);
+        }
+        public async Task<TournamentDto> CompleteAsync(Guid id, string currentUserId)
+        {
+            var tournament = await _tournamentRepository.GetByIdAsync(id);
+            if (tournament == null)
+                throw new InvalidOperationException("Tournament not found");
+            if (tournament.OrganizerId != currentUserId)
+                throw new UnauthorizedAccessException("This user doesnot have permission to change tournament details");
+            if (tournament.Status != TournamentStatus.InProgress)
+                throw new InvalidOperationException("Tournament cannot be completed in this state");
+
+            tournament.Status = TournamentStatus.Completed;
+            await _tournamentRepository.UpdateAsync(tournament);
+
+            return _mapper.Map<TournamentDto>(tournament);
         }
 
         public async Task<TournamentDto?> UpdateAsync(Guid id, UpdateTournamentRequestDto request, string currentUserId, bool isAdmin)

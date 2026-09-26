@@ -43,6 +43,7 @@ namespace ArenaHub.API.Controllers
 
             return CreatedAtAction(nameof(GetById), new { id = tournament.Id }, tournament);
         }
+
         [HttpPost("{id:guid}/open")]
         [Authorize(Roles = AppRoles.User)]
         public async Task<IActionResult> Open(Guid id)
@@ -59,6 +60,35 @@ namespace ArenaHub.API.Controllers
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var tournament = await _tournamentService.JoinAsync(id, currentUserId);
+
+            return Ok(tournament);
+        }
+        [HttpPost("{id:guid}/cancel")]
+        [Authorize(Roles = AppRoles.User)]
+        public async Task<IActionResult> Cancel(Guid id)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            var tournament = await _tournamentService.CancelAsync(id, currentUserId);
+
+            return Ok(tournament); 
+        }
+
+        [HttpPost("{id:guid}/start")]
+        [Authorize(Roles = AppRoles.User)]
+        public async Task<IActionResult> Start(Guid id)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var tournament = await _tournamentService.StartAsync(id, currentUserId);
+
+            return Ok(tournament);
+        }
+        [HttpPost("{id:guid}/complete")]
+        [Authorize(Roles = AppRoles.User)]
+        public async Task<IActionResult> Complete(Guid id)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var tournament = await _tournamentService.CompleteAsync(id, currentUserId);
 
             return Ok(tournament);
         }
